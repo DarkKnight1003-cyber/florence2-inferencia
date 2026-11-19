@@ -20,19 +20,26 @@ modelo.eval()
 
 # Cargar la imagen y escoger la tarea
 imagen = Image.open("prueba.jpg").convert("RGB")
-tarea = "<CAPTION>"
+import time
 
-# Convertir imagen y tarea en tensores
-entradas = procesador(text=tarea, images=imagen, return_tensors="pt")
-entradas = entradas.to(dispositivo)
+# Probar varias tareas sobre la misma imagen
+tareas = ["<CAPTION>", "<OD>"]
 
-# Generar la respuesta
-with torch.no_grad():
-    ids_generados = modelo.generate(**entradas, max_new_tokens=100, num_beams=3)
+for tarea in tareas:
+    inicio = time.time()
 
-# Convertir los ids otra vez a texto
-texto = procesador.batch_decode(ids_generados, skip_special_tokens=False)[0]
-resultado = procesador.post_process_generation(
-    texto, task=tarea, image_size=imagen.size
-)
-print(resultado)
+    entradas = procesador(text=tarea, images=imagen, return_tensors="pt")
+    entradas = entradas.to(dispositivo)
+
+    with torch.no_grad():
+        ids_generados = modelo.generate(**entradas, max_new_tokens=256, num_beams=1)
+
+    texto = procesador.batch_decode(ids_generados, skip_special_tokens=False)[0]
+    resultado = procesador.post_process_generation(
+        texto, task=tarea, image_size=imagen.size
+    )
+
+    fin = time.time()
+    print(tarea, "->", resultado)
+    print("Tiempo:", round(fin - inicio, 1), "segundos")
+    print()
