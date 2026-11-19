@@ -95,4 +95,4 @@ if archivo is not None:
             st.image(dibujar_cajas(imagen, resultado[tarea]), caption="Detección")
             st.write(resultado[tarea]["labels"])
         else:
-            st.write(resultado[tarea])
+            st.text(resultado[tarea])
