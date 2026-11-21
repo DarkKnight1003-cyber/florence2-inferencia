@@ -27,21 +27,29 @@ Trabajamos con el modelo Florence-2 en su versión base, de 0.23 mil millones de
 Para ejecutar el proyecto:
 
 1. Clonar el repositorio y entrar a la carpeta.
-2. Ejecutar `uv sync` para instalar las librerías.
-3. Poner una imagen de prueba en la carpeta del proyecto con el nombre `prueba.jpg`.
-4. Ejecutar `uv run python prueba_inferencia.py`.
+2. Instalar las librerías con `make instalar` (equivale a `uv sync`).
+3. Abrir la interfaz con `make app` (equivale a `uv run streamlit run app.py`).
+4. Opcionalmente, probar el modelo por consola con `make prueba`, que corre el script `prueba_inferencia.py` sobre una imagen llamada `prueba.jpg` puesta en la carpeta del proyecto.
 
-La primera ejecución descarga los pesos del modelo, que pesan unos 463 MB. El script carga el procesador y el modelo, convierte la imagen y la instrucción en tensores, genera la respuesta con `generate` y la convierte de nuevo en texto. El procesador se encarga del preprocesamiento: ajusta la imagen al tamaño que espera el encoder visual y convierte el texto de la instrucción en tokens.
+El comando `make` no viene instalado en Windows. En ese sistema se puede instalar con `winget install ezwinports.make`, o se pueden usar directamente los comandos de uv que aparecen entre paréntesis.
 
-La interfaz con Streamlit está pendiente.
+La primera vez que se ejecuta, el modelo descarga sus pesos de Hugging Face, que pesan unos 463 MB. Los pesos se cargan con la clase Florence2ForConditionalGeneration de la librería transformers, y el procesador (AutoProcessor) se encarga del preprocesamiento: ajusta el tamaño de la imagen, la normaliza y convierte la instrucción de texto en tokens. Después se llama a `generate`, donde el encoder procesa la imagen y la instrucción, y el decoder escribe la respuesta token por token. Por último, `post_process_generation` interpreta ese texto según la tarea, por ejemplo convirtiendo los tokens de posición en cajas con coordenadas reales.
+
+La interfaz está hecha con Streamlit y está en el archivo `app.py`. Permite subir una imagen, escoger la tarea y el valor de `num_beams`, y ejecutar el modelo. Las tareas disponibles son descripción corta, descripción detallada, detección de objetos, lectura de texto (OCR) y lectura de texto por líneas con regiones. Según la tarea, la interfaz muestra el resultado como texto o dibuja cajas sobre la imagen. También muestra el dispositivo usado, el tiempo de ejecución y la fecha y hora de la prueba. El modelo se carga una sola vez gracias al caché de Streamlit, para no repetir la carga en cada clic.
 
 ## 6. Resultados y análisis
 
-Hicimos una primera prueba con una imagen de un personaje en pleno vuelo sobre una ciudad, con otro personaje parado en una plataforma. La prueba se corrió en un portátil con procesador Intel Core i7-1065G7, sin GPU, solo en CPU. Probamos cuatro instrucciones del modelo.
+Todas las pruebas se hicieron en un portátil con procesador Intel Core i7-1065G7, sin GPU, es decir, solo en CPU. Las pruebas con GPU quedan pendientes y se agregarán aquí.
 
-Con `<CAPTION>` el modelo devolvió una descripción corta y correcta del personaje principal, pero no mencionó al segundo personaje. Con `<MORE_DETAILED_CAPTION>` la descripción fue más larga y acertó en el fondo de la imagen, pero inventó un detalle que no existe: dijo que el segundo personaje sostenía una espada. Con `<OD>`, la detección de objetos, el modelo encontró tres elementos con `num_beams=3` (calzado y dos personas), incluido el personaje de la plataforma, y con `num_beams=1` perdió el calzado. Con `<OCR>` devolvió solo un guion, lo cual es coherente porque la imagen no tiene texto.
+**Descripciones.** Con una imagen de un personaje en pleno vuelo sobre una ciudad, `<CAPTION>` devolvió una frase correcta pero corta, que no mencionaba al segundo personaje de la escena. `<MORE_DETAILED_CAPTION>` acertó en el fondo de la imagen, pero inventó un detalle que no existía: dijo que el segundo personaje sostenía una espada. Es un ejemplo de alucinación del modelo.
 
-En cuanto a tiempo, en CPU cada instrucción tardó entre 42 y 58 segundos con `num_beams=3`. Al bajar a `num_beams=1` los tiempos fueron de unos 35 segundos para `<CAPTION>` y 38 para `<OD>`, así que la mejora fue pequeña y costó algo de calidad en la detección. Esto indica que buena parte del tiempo se va en el procesamiento de la imagen y no en la generación del texto. Las pruebas en GPU quedan pendientes y se reportarán aquí junto con las capturas de pantalla de la interfaz.
+**Detección de objetos.** Con `<OD>` el modelo detectó a los dos personajes de esa imagen y, en otra prueba con una foto de un perro, devolvió una caja con la etiqueta "dog". Con `num_beams=3` encontró un elemento más (calzado) que con `num_beams=1`, lo que muestra que explorar más opciones mejora un poco la detección, a cambio de más tiempo. A diferencia de otros detectores, Florence-2 no entrega un porcentaje de confianza para cada caja, solo la caja y el nombre.
+
+**Lectura de texto.** Con la portada impresa de un libro, `<OCR>` leyó todo el texto sin errores de letras, aunque devolvió las líneas pegadas en una sola cadena y perdió la tilde de "ASCENSIÓN". Con apuntes escritos a mano, en cambio, el resultado fue mucho peor: acertó algunas palabras sueltas, mezcló o inventó otras, y el texto se cortó antes de terminar la hoja, probablemente por el límite de tokens que fijamos al generar. Esto muestra que el modelo funciona bien con letra impresa y mal con letra manuscrita. Para resolver el problema de las líneas pegadas usamos la instrucción `<OCR_WITH_REGION>`, que devuelve cada línea por separado con su posición, y en la interfaz se dibuja un recuadro sobre cada una.
+
+**Tiempos.** En CPU cada tarea tardó entre 35 y 58 segundos por imagen, sea cual fuera la tarea. Por ejemplo, `<CAPTION>` tardó 57.8 segundos con `num_beams=3` y unos 35 con `num_beams=1` en el script de prueba, y entre 47 y 54 segundos dentro de la interfaz. La mejora al reducir `num_beams` fue pequeña, y como el tiempo es parecido entre tareas muy distintas, buena parte se va en procesar la imagen y no en escribir la respuesta. Esta es una interpretación a partir de los tiempos medidos, no se comprobó directamente.
+
+**Capturas.** Pendiente: aquí irán las capturas propias de la interfaz funcionando, con la fecha y hora visibles.
 
 ## 7. Conclusiones
 
