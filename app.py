@@ -4,6 +4,7 @@
 import time
 import streamlit as st
 import torch
+from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 from transformers import AutoProcessor, Florence2ForConditionalGeneration
 
@@ -16,6 +17,7 @@ tareas = {
     "Descripción detallada": "<MORE_DETAILED_CAPTION>",
     "Detección de objetos": "<OD>",
     "Leer texto (OCR)": "<OCR>",
+    "Leer texto por líneas (OCR con regiones)": "<OCR_WITH_REGION>",
 }
 
 
@@ -67,6 +69,14 @@ def dibujar_cajas(imagen, resultado):
         dibujo.text((x1 + 5, y_texto + 5 - arriba), etiqueta, fill="white", font=fuente)
     return imagen_dibujo
 
+def dibujar_lineas_texto(imagen, resultado):
+    imagen_dibujo = imagen.copy()
+    dibujo = ImageDraw.Draw(imagen_dibujo)
+    for cuadro in resultado["quad_boxes"]:
+        # cada cuadro trae 8 números: las 4 esquinas (x, y)
+        puntos = [(cuadro[i], cuadro[i + 1]) for i in range(0, 8, 2)]
+        dibujo.line(puntos + [puntos[0]], fill="red", width=3)
+    return imagen_dibujo
 
 # ---------- Interfaz ----------
 st.title("Inferencia con Florence-2")
@@ -90,9 +100,17 @@ if archivo is not None:
             fin = time.time()
 
         st.write("Tiempo:", round(fin - inicio, 1), "segundos")
+        st.write("Fecha y hora:", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
         if tarea == "<OD>":
             st.image(dibujar_cajas(imagen, resultado[tarea]), caption="Detección")
             st.write(resultado[tarea]["labels"])
+        elif tarea == "<OCR_WITH_REGION>":
+            datos = resultado[tarea]
+            st.image(dibujar_lineas_texto(imagen, datos), caption="Líneas de texto")
+            lineas = []
+            for etiqueta in datos["labels"]:
+                lineas.append(etiqueta.replace("</s>", "").replace("<s>", ""))
+            st.text("\n".join(lineas))
         else:
             st.text(resultado[tarea])
