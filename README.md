@@ -20,6 +20,10 @@ Normalmente describir una imagen, leer el texto que aparece en ella y detectar o
 
 Florence-2 es un modelo secuencia a secuencia: recibe una secuencia de entrada y produce otra de salida. La entrada es una imagen junto con una instrucción en texto, y la salida es siempre texto. Para eso usa una arquitectura Transformer de tipo encoder-decoder. Primero, un encoder visual (DaViT) convierte la imagen en una secuencia de tokens visuales. Esos tokens se combinan con los tokens de la instrucción y pasan por el encoder del Transformer, que produce una representación de todo lo que el modelo necesita saber para responder. Después, el decoder escribe la respuesta un token a la vez, y cada token nuevo depende de lo que ya escribió y de lo que el encoder entendió.
 
+![Arquitectura de Florence-2](capturas/arquitectura.png)
+
+Figura 1. Arquitectura de Florence-2: la imagen y la instrucción entran al encoder del Transformer, y el decoder escribe la respuesta usando atención cruzada.
+
 ### 3.2 Mecanismo de atención
 
 La atención permite que cada elemento de una secuencia decida a cuáles otros elementos debe prestarle más importancia [4]. Se calcula con tres tensores: las queries (Q), las keys (K) y los values (V). Cada token genera su propia Q, K y V multiplicando su vector por matrices de pesos que el modelo aprendió durante el entrenamiento. La fórmula es:
