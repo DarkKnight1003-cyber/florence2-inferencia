@@ -2,7 +2,7 @@
 
 Proyecto final de Procesamiento de Datos Secuenciales, Especialización en Inteligencia Artificial, Universidad Autónoma de Occidente.
 
-Integrantes: Juan Esteban Aristizabal, Juan Felipe Lopez y John Angel Posso.
+Integrantes: Juan Esteban Aristizábal García (22601265), Juan Felipe López (22615417) y John Angel Posso (22615413).
 
 ## 1. Resumen
 
