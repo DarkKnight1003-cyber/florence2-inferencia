@@ -6,7 +6,7 @@ Integrantes: Juan Esteban Aristizabal, Juan Felipe Lopez y John Angel Posso.
 
 ## 1. Resumen
 
-Este trabajo implementa la inferencia de Florence-2, un modelo de visión de tipo Transformer encoder-decoder, a partir de los pesos preentrenados publicados por sus autores. Se construyó una interfaz en Streamlit donde se sube una imagen, se escoge una de cinco tareas (descripción corta, descripción detallada, detección de objetos, lectura de texto y lectura de texto por regiones) y se visualiza el resultado, junto con el tiempo de ejecución y el dispositivo usado. Las pruebas mostraron que el modelo describe bien lo principal de una imagen y lee con precisión el texto impreso grande, pero se equivoca con letra pequeña o manuscrita, puede inventar detalles en las descripciones largas y no entrega un porcentaje de confianza en la detección. También se encontró que cargar el modelo en media precisión (float16) lo hace muy lento en CPU, y que cargarlo en float32 reduce el tiempo de unos 35 a 58 segundos a unos 4 a 5 segundos por imagen. COMPLETAR: agregar aquí la comparación final entre CPU y GPU cuando estén todas las pruebas.
+Este trabajo implementa la inferencia de Florence-2, un modelo de visión de tipo Transformer encoder-decoder, a partir de los pesos preentrenados publicados por sus autores. Se construyó una interfaz en Streamlit donde se sube una imagen, se escoge una de cinco tareas (descripción corta, descripción detallada, detección de objetos, lectura de texto y lectura de texto por regiones) y se visualiza el resultado, junto con el tiempo de ejecución y el dispositivo usado. Las pruebas mostraron que el modelo describe bien lo principal de una imagen y lee con precisión el texto impreso grande, pero se equivoca con letra pequeña o manuscrita, puede inventar detalles en las descripciones largas y no entrega un porcentaje de confianza en la detección. También se encontró que cargar el modelo en media precisión (float16) lo hace muy lento en CPU, y que cargarlo en float32 reduce el tiempo de unos 35 a 58 segundos a unos 4 a 5 segundos por imagen. En una comparación sobre la misma imagen, una GPU NVIDIA RTX 5070 fue entre 8 y 27 veces más rápida que una CPU Intel i7-1065G7, y con ella las tareas responden en menos de un segundo.
 
 ## 2. Introducción
 
@@ -85,13 +85,13 @@ La interfaz está hecha con Streamlit, se llama Florence-2 Vision Studio y está
 
 | Tarea | CPU Intel i7-1065G7 (float32) | GPU RTX 5070 (float16) |
 |---|---|---|
-| Descripción corta | 6.0 s | COMPLETAR |
-| Detección de objetos | 6.4 s | COMPLETAR |
-| OCR con regiones | 16.9 s | COMPLETAR |
+| Descripción corta | 6.0 s | 0.78 s |
+| Detección de objetos | 6.4 s | 0.24 s |
+| OCR con regiones | 16.9 s | 0.88 s |
 
 En la CPU, la descripción corta y la detección de objetos tardaron un tiempo parecido, alrededor de 6 segundos, mientras que el OCR con regiones tardó casi el triple. La explicación más probable es que el OCR genera mucho más texto (una línea por cada región, con sus coordenadas), y el decoder produce la respuesta un token a la vez, así que cuanto más larga es la salida, más tiempo toma. Los tiempos variaron un poco entre ejecuciones de la misma tarea (por ejemplo, entre 5 y 8 segundos en la descripción corta), algo normal en una CPU que comparte recursos con otros programas.
 
-COMPLETAR: un párrafo corto sobre la GPU, con cuántas veces más rápida fue y si la diferencia es la misma en todas las tareas.
+La GPU fue entre 8 y 27 veces más rápida que la CPU según la tarea: unas 8 veces en la descripción corta, 27 en la detección de objetos y 19 en el OCR con regiones. En la descripción corta, la primera de las tres ejecuciones tardó 1.93 segundos mientras que las otras dos tardaron cerca de 0.2, lo que parece ser el arranque de la GPU. Si se descarta esa primera ejecución, la diferencia en esa tarea sería de unas 30 veces. Con la GPU, las tres tareas responden en menos de un segundo, lo que permite usar la interfaz de forma interactiva. Hay que tener en cuenta que la comparación mezcla dos factores: el dispositivo y el tipo de dato (la GPU usa float16 y la CPU float32), por lo que la diferencia no se debe solo al hardware. También se mantiene que el OCR es la tarea más lenta en ambos dispositivos, porque produce una salida más larga.
 
 **Capturas.** Pruebas en CPU con la interfaz final. Como la pantalla no cabía completa, cada tarea se muestra en varias partes.
 
