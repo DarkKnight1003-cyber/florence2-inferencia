@@ -10,7 +10,7 @@ Este trabajo implementa la inferencia de Florence-2, un modelo de visión de tip
 
 ## 2. Introducción
 
-Este trabajo toma como base el artículo "Florence-2: Advancing a Unified Representation for a Variety of Vision Tasks" de Xiao et al., publicado en CVPR 2024. Los pesos preentrenados y el código del modelo están disponibles en https://huggingface.co/florence-community/Florence-2-base[3], y la implementación que usamos es la que viene integrada en la librería transformers de Hugging Face.
+Este trabajo toma como base el artículo "Florence-2: Advancing a Unified Representation for a Variety of Vision Tasks" de Xiao et al., publicado en CVPR 2024. Los pesos preentrenados y el código del modelo están disponibles en https://huggingface.co/florence-community/Florence-2-base [3], y la implementación que usamos es la que viene integrada en la librería transformers de Hugging Face.
 
 Normalmente describir una imagen, leer el texto que aparece en ella y detectar objetos son tareas que se resuelven con modelos distintos. Florence-2 las resuelve con un solo Transformer de tipo encoder-decoder, que recibe la imagen junto con una instrucción corta escrita en texto y devuelve la respuesta también en texto. El objetivo de este proyecto no es entrenar el modelo, sino cargar los pesos ya entrenados, ejecutar la inferencia, mostrar los resultados en una interfaz y explicar en detalle cómo funciona la arquitectura y su mecanismo de atención.
 
@@ -50,7 +50,7 @@ El encoder visual es un DaViT con cuatro etapas, con 128, 256, 512 y 1024 canale
 
 ## 4. Metodología
 
-Trabajamos con el modelo Florence-2 en su versión base, de 0.23 mil millones de parámetros, sin ningún entrenamiento adicional. Los pesos se descargan de Hugging Face la primera vez que se ejecuta el código. El entorno se maneja con uv, y las librerías principales son torch, transformers, pillow, matplotlib y streamlit. Usamos la clase Florence2ForConditionalGeneration[2] de transformers, que ya incluye la arquitectura completa, en lugar del código remoto original de Microsoft, porque ese último dejó de funcionar con las versiones recientes de la librería.
+Trabajamos con el modelo Florence-2 en su versión base, de 0.23 mil millones de parámetros, sin ningún entrenamiento adicional. Los pesos se descargan de Hugging Face la primera vez que se ejecuta el código. El entorno se maneja con uv, y las librerías principales son torch, transformers, pillow, matplotlib y streamlit. Usamos la clase Florence2ForConditionalGeneration [2] de transformers, que ya incluye la arquitectura completa, en lugar del código remoto original de Microsoft, porque ese último dejó de funcionar con las versiones recientes de la librería.
 
 Las pruebas se hicieron en dos equipos. El primero es un portátil con procesador Intel Core i7-1065G7, sin GPU dedicada. El segundo es un equipo con procesador AMD Ryzen 7 9700X, tarjeta NVIDIA GeForce RTX 5070 de 12 GB, 24 GB de RAM y Windows 11 Pro.
 
