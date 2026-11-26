@@ -6,11 +6,11 @@ Integrantes: Juan Esteban Aristizabal, Juan Felipe Lopez y John Angel Posso.
 
 ## 1. Resumen
 
-Este trabajo implementa la inferencia de Florence-2, un modelo de visión de tipo Transformer encoder-decoder, a partir de los pesos preentrenados publicados por sus autores. Se construyó una interfaz en Streamlit donde se sube una imagen, se escoge una de cinco tareas (descripción corta, descripción detallada, detección de objetos, lectura de texto y lectura de texto por regiones) y se visualiza el resultado, junto con el tiempo de ejecución y el dispositivo usado. Las pruebas mostraron que el modelo describe bien lo principal de una imagen y lee con precisión el texto impreso grande, pero se equivoca con letra pequeña o manuscrita, puede inventar detalles en las descripciones largas y no entrega un porcentaje de confianza en la detección. También se encontró que cargar el modelo en media precisión (float16) lo hace muy lento en CPU, y que cargarlo en float32 reduce el tiempo de unos 35 a 58 segundos a unos 4 a 5 segundos por imagen. En una comparación sobre la misma imagen, una GPU NVIDIA RTX 5070 fue entre 8 y 27 veces más rápida que una CPU Intel i7-1065G7, y con ella las tareas responden en menos de un segundo.
+Este trabajo implementa la inferencia de Florence-2, un modelo de visión de tipo Transformer encoder-decoder, a partir de los pesos preentrenados publicados por sus autores. Se construyó una interfaz en Streamlit donde se sube una imagen, se escoge una de cinco tareas (descripción corta, descripción detallada, detección de objetos, lectura de texto y lectura de texto por regiones) y se visualiza el resultado, junto con el tiempo de ejecución y el dispositivo usado. Las pruebas mostraron que el modelo describe bien lo principal de una imagen y lee con precisión el texto impreso grande, pero se equivoca con letra pequeña o manuscrita, puede inventar detalles en las descripciones largas y no entrega un porcentaje de confianza en la detección. También se encontró que cargar el modelo en media precisión (float16) lo hace muy lento en CPU, y que cargarlo en float32 reduce el tiempo de unos 35 a 58 segundos a unos 4 a 6 segundos por imagen. En una comparación sobre la misma imagen, una GPU NVIDIA RTX 5070 fue entre 8 y 27 veces más rápida que una CPU Intel i7-1065G7, y con ella las tareas responden en menos de un segundo.
 
 ## 2. Introducción
 
-Este trabajo toma como base el artículo "Florence-2: Advancing a Unified Representation for a Variety of Vision Tasks" de Xiao et al., publicado en CVPR 2024. Los pesos preentrenados y el código del modelo están disponibles en https://huggingface.co/florence-community/Florence-2-base, y la implementación que usamos es la que viene integrada en la librería transformers de Hugging Face.
+Este trabajo toma como base el artículo "Florence-2: Advancing a Unified Representation for a Variety of Vision Tasks" de Xiao et al., publicado en CVPR 2024. Los pesos preentrenados y el código del modelo están disponibles en https://huggingface.co/florence-community/Florence-2-base[3], y la implementación que usamos es la que viene integrada en la librería transformers de Hugging Face.
 
 Normalmente describir una imagen, leer el texto que aparece en ella y detectar objetos son tareas que se resuelven con modelos distintos. Florence-2 las resuelve con un solo Transformer de tipo encoder-decoder, que recibe la imagen junto con una instrucción corta escrita en texto y devuelve la respuesta también en texto. El objetivo de este proyecto no es entrenar el modelo, sino cargar los pesos ya entrenados, ejecutar la inferencia, mostrar los resultados en una interfaz y explicar en detalle cómo funciona la arquitectura y su mecanismo de atención.
 
@@ -50,7 +50,7 @@ El encoder visual es un DaViT con cuatro etapas, con 128, 256, 512 y 1024 canale
 
 ## 4. Metodología
 
-Trabajamos con el modelo Florence-2 en su versión base, de 0.23 mil millones de parámetros, sin ningún entrenamiento adicional. Los pesos se descargan de Hugging Face la primera vez que se ejecuta el código. El entorno se maneja con uv, y las librerías principales son torch, transformers, pillow, matplotlib y streamlit. Usamos la clase Florence2ForConditionalGeneration de transformers, que ya incluye la arquitectura completa, en lugar del código remoto original de Microsoft, porque ese último dejó de funcionar con las versiones recientes de la librería.
+Trabajamos con el modelo Florence-2 en su versión base, de 0.23 mil millones de parámetros, sin ningún entrenamiento adicional. Los pesos se descargan de Hugging Face la primera vez que se ejecuta el código. El entorno se maneja con uv, y las librerías principales son torch, transformers, pillow, matplotlib y streamlit. Usamos la clase Florence2ForConditionalGeneration[2] de transformers, que ya incluye la arquitectura completa, en lugar del código remoto original de Microsoft, porque ese último dejó de funcionar con las versiones recientes de la librería.
 
 Las pruebas se hicieron en dos equipos. El primero es un portátil con procesador Intel Core i7-1065G7, sin GPU dedicada. El segundo es un equipo con procesador AMD Ryzen 7 9700X, tarjeta NVIDIA GeForce RTX 5070 de 12 GB, 24 GB de RAM y Windows 11 Pro.
 
@@ -75,7 +75,7 @@ Nota sobre la instalación: el archivo `pyproject.toml` apunta a la versión de 
 
 ## 6. Resultados y análisis
 
-**Descripciones.** Con una imagen de un personaje en pleno vuelo sobre una ciudad, `<CAPTION>` devolvió una frase correcta pero corta, que no mencionaba al segundo personaje de la escena. `<MORE_DETAILED_CAPTION>` acertó en el fondo de la imagen, pero inventó un detalle que no existía: dijo que el segundo personaje sostenía una espada. Con un anuncio de un videojuego, la descripción detallada agregó elementos como un caballero con armadura y un dragón que no aparecen en la imagen. Es el mismo tipo de alucinación en dos imágenes distintas.
+**Descripciones.** Con una imagen de un personaje en pleno vuelo sobre una ciudad, `<CAPTION>` devolvió una frase correcta pero corta, que no mencionaba al segundo personaje de la escena. `<MORE_DETAILED_CAPTION>` acertó en el fondo de la imagen, pero inventó un detalle que no existía: dijo que el segundo personaje sostenía una espada. Con un anuncio de un videojuego, la descripción detallada dijo que entre las imágenes pequeñas había "un caballero con armadura completa, un caballero a caballo y un dragón". En la imagen hay figuras con armadura y los caballos de un carro, pero no hay ningún dragón. Es el mismo tipo de alucinación en dos imágenes distintas.
 
 **Detección de objetos.** Con `<OD>` el modelo detectó a los dos personajes de la primera imagen y, con la foto de un perro, devolvió una caja con la etiqueta "dog". En el anuncio del videojuego detectó seis personas, incluidas las figuras pequeñas de los recuadros, y un afiche. Con `num_beams=3` encontró un elemento más (calzado) que con `num_beams=1`, lo que muestra que explorar más opciones mejora un poco la detección, a cambio de más tiempo. A diferencia de otros detectores, Florence-2 no entrega un porcentaje de confianza para cada caja, solo la caja y el nombre.
 
@@ -130,6 +130,8 @@ Descripción corta:
 ![Descripción corta en GPU, parte 1](capturas/gpu_descripcion-parte_1.png)
 
 ![Descripción corta en GPU, parte 2](capturas/gpu_descripcion-parte_2.png)
+
+![Descripción detallada del anuncio en CPU](capturas/cpu_descripcion_detallada.png)
 
 Detección de objetos:
 
