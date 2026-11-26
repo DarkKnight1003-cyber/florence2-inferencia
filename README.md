@@ -103,6 +103,8 @@ Descripción corta:
 
 ![Descripción corta, parte 2](capturas/cpu_descripcion-parte_2.png)
 
+![Descripción detallada del anuncio en CPU](capturas/cpu_descripcion_detallada.png)
+
 Detección de objetos:
 
 ![Detección de objetos, parte 1](capturas/cpu_deteccion-parte_1.png)
@@ -130,8 +132,6 @@ Descripción corta:
 ![Descripción corta en GPU, parte 1](capturas/gpu_descripcion-parte_1.png)
 
 ![Descripción corta en GPU, parte 2](capturas/gpu_descripcion-parte_2.png)
-
-![Descripción detallada del anuncio en CPU](capturas/cpu_descripcion_detallada.png)
 
 Detección de objetos:
 
