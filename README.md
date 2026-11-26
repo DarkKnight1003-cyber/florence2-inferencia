@@ -121,7 +121,33 @@ OCR con regiones:
 
 ![OCR con regiones, parte 4](capturas/cpu_OCR_regiones-parte_4.png)
 
-COMPLETAR: capturas de las mismas pruebas en GPU, cuando Felipe las tenga.
+Pruebas en GPU (NVIDIA RTX 5070) con la misma imagen y la interfaz final.
+
+Descripción corta:
+
+![Descripción corta en GPU, parte 1](capturas/gpu_descripcion-parte_1.png)
+
+![Descripción corta en GPU, parte 2](capturas/gpu_descripcion-parte_2.png)
+
+Detección de objetos:
+
+![Detección de objetos en GPU, parte 1](capturas/gpu_deteccion-parte_1.png)
+
+![Detección de objetos en GPU, parte 2](capturas/gpu_deteccion-parte_2.png)
+
+![Detección de objetos en GPU, parte 3](capturas/gpu_deteccion-parte_3.png)
+
+![Detección de objetos en GPU, parte 4](capturas/gpu_deteccion-parte_4.png)
+
+OCR con regiones:
+
+![OCR con regiones en GPU, parte 1](capturas/gpu_OCR_regiones-parte_1.png)
+
+![OCR con regiones en GPU, parte 2](capturas/gpu_OCR_regiones-parte_2.png)
+
+![OCR con regiones en GPU, parte 3](capturas/gpu_OCR_regiones-parte_3.png)
+
+![OCR con regiones en GPU, parte 4](capturas/gpu_OCR_regiones-parte_4.png)
 
 ## 7. Conclusiones
 
