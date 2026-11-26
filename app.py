@@ -133,15 +133,19 @@ def cargar_modelo():
     # El modelo se carga una sola vez durante la sesión.
     procesador = AutoProcessor.from_pretrained(NOMBRE_MODELO)
 
+    # En GPU se usa media precisión y en CPU precisión normal,
+    # porque float16 en CPU es muy lento.
+    tipo_dato = torch.float16 if DISPOSITIVO == "cuda" else torch.float32
+
     modelo = Florence2ForConditionalGeneration.from_pretrained(
-        NOMBRE_MODELO
+        NOMBRE_MODELO,
+        dtype=tipo_dato
     )
 
     modelo = modelo.to(DISPOSITIVO)
     modelo.eval()
 
     return procesador, modelo
-
 
 # ---------- Proceso de inferencia ----------
 
