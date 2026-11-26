@@ -81,17 +81,47 @@ La interfaz está hecha con Streamlit, se llama Florence-2 Vision Studio y está
 
 **Tiempos y precisión numérica.** En el portátil con CPU Intel, con el modelo cargado en float16 (el valor por defecto), cada tarea tardó entre 35 y 58 segundos por imagen. Al cargarlo en float32, la descripción corta de la misma imagen tardó unos 4 segundos (4.1 y 4.0 segundos en dos ejecuciones seguidas, con `num_beams=1`), y dentro de la interfaz una descripción corta tardó 5.23 segundos con otra imagen. El resultado del modelo fue idéntico, por lo que el cambio solo afectó el tiempo. Esto indica que en CPU la media precisión es muy lenta porque el procesador no está optimizado para ese tipo de cálculo.
 
-**Comparación entre CPU y GPU.** Los tiempos de inferencia con `num_beams=1`, en la segunda ejecución de cada tarea, para la misma imagen (COMPLETAR: nombre de la imagen):
+**Comparación entre CPU y GPU.** Todas las mediciones se hicieron con `num_beams=1` y sobre la misma imagen: el anuncio del videojuego Prince of Persia: The Two Thrones, de 1195 × 1600 píxeles. Cada tiempo es el promedio de tres ejecuciones seguidas de la misma tarea.
 
 | Tarea | CPU Intel i7-1065G7 (float32) | GPU RTX 5070 (float16) |
 |---|---|---|
-| Descripción corta | COMPLETAR | COMPLETAR |
-| Detección de objetos | COMPLETAR | COMPLETAR |
-| OCR con regiones | COMPLETAR | COMPLETAR |
+| Descripción corta | 6.0 s | COMPLETAR |
+| Detección de objetos | 6.4 s | COMPLETAR |
+| OCR con regiones | 16.9 s | COMPLETAR |
 
-COMPLETAR: un párrafo corto que interprete la tabla (cuántas veces más rápida es la GPU y si la diferencia es la misma en todas las tareas).
+En la CPU, la descripción corta y la detección de objetos tardaron un tiempo parecido, alrededor de 6 segundos, mientras que el OCR con regiones tardó casi el triple. La explicación más probable es que el OCR genera mucho más texto (una línea por cada región, con sus coordenadas), y el decoder produce la respuesta un token a la vez, así que cuanto más larga es la salida, más tiempo toma. Los tiempos variaron un poco entre ejecuciones de la misma tarea (por ejemplo, entre 5 y 8 segundos en la descripción corta), algo normal en una CPU que comparte recursos con otros programas.
 
-**Capturas.** COMPLETAR: aquí van las capturas de pantalla propias de la interfaz funcionando, con el tiempo, el dispositivo y la fecha y hora visibles.
+COMPLETAR: un párrafo corto sobre la GPU, con cuántas veces más rápida fue y si la diferencia es la misma en todas las tareas.
+
+**Capturas.** Pruebas en CPU con la interfaz final. Como la pantalla no cabía completa, cada tarea se muestra en varias partes.
+
+Descripción corta:
+
+![Descripción corta, parte 1](capturas/cpu_descripcion-parte_1.png)
+
+![Descripción corta, parte 2](capturas/cpu_descripcion-parte_2.png)
+
+Detección de objetos:
+
+![Detección de objetos, parte 1](capturas/cpu_deteccion-parte_1.png)
+
+![Detección de objetos, parte 2](capturas/cpu_deteccion-parte_2.png)
+
+![Detección de objetos, parte 3](capturas/cpu_deteccion-parte_3.png)
+
+![Detección de objetos, parte 4](capturas/cpu_deteccion-parte_4.png)
+
+OCR con regiones:
+
+![OCR con regiones, parte 1](capturas/cpu_OCR_regiones-parte_1.png)
+
+![OCR con regiones, parte 2](capturas/cpu_OCR_regiones-parte_2.png)
+
+![OCR con regiones, parte 3](capturas/cpu_OCR_regiones-parte_3.png)
+
+![OCR con regiones, parte 4](capturas/cpu_OCR_regiones-parte_4.png)
+
+COMPLETAR: capturas de las mismas pruebas en GPU, cuando Felipe las tenga.
 
 ## 7. Conclusiones
 
